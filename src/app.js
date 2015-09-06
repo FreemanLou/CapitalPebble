@@ -2,6 +2,7 @@
  *
  * Capital One Client on Pebble Watch.
  * Pennapps Fall 2015
+ *
  */
 
 var ajax = require('ajax');
@@ -9,8 +10,10 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 
 var apiKey = "key=4f9385baa549938840c4268f760372f6"; //Time constraint does not allow for more secure methods
-var userID = "55e94a6af8d8770528e60e2c";
-var userName = "Fiddler Pig";
+// var userID = "55e94a6af8d8770528e60e2c";
+// var userName = "Fiddler Pig";
+var userID = "55e94a6af8d8770528e60e2b";
+var userName = "Fflewddur Fflam";
 var baseURL = "http://api.reimaginebanking.com/";
 
 var mainMenu = {};
@@ -36,6 +39,7 @@ ajax(
 	},
 	function(data) {	// Data is array of account objects
 		//Set up main menu
+
 		var mainMenuItems = [
 			{
 				title: "Accounts",
@@ -75,17 +79,48 @@ ajax(
 						var index = f.itemIndex;
 						var nickName = data[index].nickname;
 						var type = data[index].type;
-
+						var accountID = data[index]._id;
+						
+						console.log(accountID);
+						
 						var content = "Balance: \$" +  data[index].balance
-							+ "\nRewards: \$" + data[index].rewards;
+							+ "\nRewards: \$" + data[index].rewards
+							+ "\n\nTransactions:"
+							+ "\n-Purchases--";
 
-						var detailCard = new UI.Card({
-							title: nickName,
-							subtitle: type,
-							body: content,
-							style: "large"
-						});
-						detailCard.show();
+						query = baseURL + "accounts/" + accountID + "/purchases?"
+							+ apiKey;
+
+						ajax(
+							{
+								url: query,
+								type: 'json'
+							},
+							function(purchases) {
+								console.log("Successful query for purchases");
+								var counter = 0;
+								var length = purchases.length;
+
+								while(counter < 5 && length > 0) {
+									content += "\n " + purchases[counter].merchant_id
+										+ purchases[counter].amount + "\n" + purchases[counter].purchase_date;
+										
+									counter++;
+									length--;
+								}
+									 
+								var detailCard = new UI.Card({
+									title: nickName,
+									subtitle: type,
+									body: content,
+									scrollable: true,
+									style: "large"
+								});
+								detailCard.show();	
+							},
+							function(e){
+								console.log("Could not get purchases");
+							});
 					});
 					
 					accountsMenu.show();
@@ -123,7 +158,7 @@ ajax(
 					);
 					break;
 
-			}	//switch
+			}	//END_SWITCH
 		});
 
 		splashWindow.hide();
@@ -163,11 +198,11 @@ function createLocationMenu(latitude, longitude) {
 	var locationTypes = [
 		{
 			title: "ATMs",
-			subtitle: "Closest 5 ATMs"
+			subtitle: "Nearest ATMs"
 		},
 		{
 			title: "Branches",
-			subtitle: "Within 5 Branches"
+			subtitle: "Nearest Branches"
 		}
 	];
 	
