@@ -242,8 +242,15 @@ function showLocation(type, lat, long) {
 		},
 		function(search) {
 			console.log(JSON.stringify(search));
+			var locations;
 			
-			var locations = search;
+			if(type === "atm") {
+				locations = search.data;				
+			} else {
+				locations = search;
+			}
+			
+			
 			var counter = 0;
 			var length = locations.length;
 			var list = [];
@@ -272,151 +279,6 @@ function showLocation(type, lat, long) {
 			var results = new UI.Menu({
 				sections: [{
 					title: title,
-					items: list
-				}]
-			});
-			
-			results.on("select", function(l){
-				var index = l.itemIndex;
-				
-				var address = locations[index].address.street_number + " "
-					+ locations[index].address.street_name;
-				var name = locations[index].name;
-				var hours = locations[index].hours.toString();
-				
-				var hourCard = new UI.Card({
-					title: name,
-					subtitle: address,
-					body: hours,
-					scrollable: true,
-					style: "small"
-				});
-				hourCard.show();
-			});
-			
-			results.show();
-		},
-		function(error) {
-			console.log("Failed to retrieve locations");
-		}
-	);
-}
-
-
-
-function showATMs(lat,long) {
-	var query = baseURL + "atms?lat=" + lat + "&lng=" + long
-		+ "&rad=80&" + apiKey;
-	console.log(query);
-	
-	ajax(
-		{
-			url: query,
-			type: "json"		
-		},
-		function(search) {
-			console.log(JSON.stringify(search));
-			
-			var locations = search.data;
-			var counter = 0;
-			var length = locations.length;
-			var list = [];
-			
-			console.log("locations: " + length);
-
-			if(length === 0) {
-				reportNoLocations();
-				return;
-			}
-
-			while(length > 0 && counter < 5) {
-				var name = locations[counter].name;
-				var address = locations[counter].address.street_number + " "
-					+ locations[counter].address.street_name;
-
-				list.push({
-					title: name,
-					subtitle: address
-				});
-
-				length--;
-				counter++;
-			}
-			
-			var results = new UI.Menu({
-				sections: [{
-					title: "ATMs",
-					items: list
-				}]
-			});
-			
-			results.on("select", function(l){
-				var index = l.itemIndex;
-				
-				var address = locations[index].address.street_number + " "
-					+ locations[index].address.street_name;
-				var name = locations[index].name;
-				var hours = locations[index].hours.toString();
-				
-				var hourCard = new UI.Card({
-					title: name,
-					subtitle: address,
-					body: hours,
-					style: "small"
-				});
-				hourCard.show();
-			});
-			
-			results.show();
-		},
-		function(error) {
-			console.log("Failed to retrieve locations");
-		}
-	);
-}
-
-
-function showBranches(lat, long) {
-	var query = baseURL + "branches?" + apiKey;
-	console.log(query);
-	
-	ajax(
-		{
-			url: query,
-			type: "json"		
-		},
-		function(search) {
-			console.log(JSON.stringify(search));
-			
-			var locations = search;
-			var counter = 0;
-			var length = locations.length;
-			var list = [];
-			
-			console.log("locations: " + length);
-
-			if(length === 0) {
-				reportNoLocations();
-				return;
-			}
-
-			while(length > 0 && counter < 5) {
-				var name = locations[counter].name;
-				var address = locations[counter].address.street_number + " "
-					+ locations[counter].address.street_name;
-
-				list.push({
-					title: name,
-					subtitle: address
-				});
-
-				length--;
-				counter++;
-			}
-			
-			var results = new UI.Menu({
-				sections: [{
-					title: "Branches",
 					items: list
 				}]
 			});
