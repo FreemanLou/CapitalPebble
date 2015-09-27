@@ -7,7 +7,6 @@
 
 var ajax = require('ajax');
 var UI = require('ui');
-var Vector2 = require('vector2');
 
 var apiKey = "key=4f9385baa549938840c4268f760372f6"; //Time constraint does not allow for more secure methods
 var userID = "55e94a6af8d8770528e60e2b";
@@ -15,14 +14,13 @@ var userName = "Fflewddur Fflam";	// Name assigned by the API
 var baseURL = "http://api.reimaginebanking.com/";
 
 var mainMenu = {};
-var accountsMenu = {};
-
 
 // Set up splash screen
 var splashWindow = new UI.Card({
 	title: "Capital One Bank",
 	body: "Retrieving Data..." //Add icons if you have time
 });
+
 splashWindow.show();
 
 
@@ -214,14 +212,96 @@ function createLocationMenu(latitude, longitude) {
 	locationsMenu.on("select", function(i) {
 		var index = i.itemIndex;
 		if(index) {
-			showBranches(latitude, longitude);
+			showLocation("branch", latitude, longitude);
 		} else {
-			showATMs(latitude, longitude);
+			showLocation("atm", latitude, longitude);
 		}
 	});
 	
 	locationsMenu.show();
 }
+
+
+function showLocation(type, lat, long) {
+	var query = "";
+	var title = "";
+
+	if(type === "atm") {
+		query = baseURL + "atms?lat=" + lat + "&lng=" + long
+			+ "&rad=80&" + apiKey;
+		title = "ATMs";
+	} else {
+		query = baseURL + "branches?" + apiKey;
+		title = "Branches";
+	}
+	
+	ajax(
+		{
+			url: query,
+			type: "json"		
+		},
+		function(search) {
+			console.log(JSON.stringify(search));
+			
+			var locations = search;
+			var counter = 0;
+			var length = locations.length;
+			var list = [];
+			
+			console.log("locations: " + length);
+
+			if(length === 0) {
+				reportNoLocations();
+				return;
+			}
+
+			while(length > 0 && counter < 5) {
+				var name = locations[counter].name;
+				var address = locations[counter].address.street_number + " "
+					+ locations[counter].address.street_name;
+
+				list.push({
+					title: name,
+					subtitle: address
+				});
+
+				length--;
+				counter++;
+			}
+			
+			var results = new UI.Menu({
+				sections: [{
+					title: title,
+					items: list
+				}]
+			});
+			
+			results.on("select", function(l){
+				var index = l.itemIndex;
+				
+				var address = locations[index].address.street_number + " "
+					+ locations[index].address.street_name;
+				var name = locations[index].name;
+				var hours = locations[index].hours.toString();
+				
+				var hourCard = new UI.Card({
+					title: name,
+					subtitle: address,
+					body: hours,
+					scrollable: true,
+					style: "small"
+				});
+				hourCard.show();
+			});
+			
+			results.show();
+		},
+		function(error) {
+			console.log("Failed to retrieve locations");
+		}
+	);
+}
+
 
 
 function showATMs(lat,long) {
