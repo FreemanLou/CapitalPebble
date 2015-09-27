@@ -10,10 +10,8 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 
 var apiKey = "key=4f9385baa549938840c4268f760372f6"; //Time constraint does not allow for more secure methods
-// var userID = "55e94a6af8d8770528e60e2c";
-// var userName = "Fiddler Pig";
 var userID = "55e94a6af8d8770528e60e2b";
-var userName = "Fflewddur Fflam";
+var userName = "Fflewddur Fflam";	// Name assigned by the API
 var baseURL = "http://api.reimaginebanking.com/";
 
 var mainMenu = {};
